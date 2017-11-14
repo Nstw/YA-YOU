@@ -10,19 +10,19 @@ short sec = 0;
 int count_1 = 0;
 int count_2 = 0;
 
-short morn_eat_hr = 22;
-short morn_eat_mins = 1;
+short cnt_meals = 2;
+short hr_meals [] = {22,22};
+short mins_meals []= {1,10};
 short mins_snooze = -1;
-short cnt_tablet = 2;
-short cnt_meals = 1;
+short tablet_each_meals = 2;
+short cnt_tablet = 6;
+short rounds = 0;
 
 const int SWITCH_EAT = PIN_PB1;
 const int SWITCH_SNOOZE = PIN_PB0;
-//const int SERVO = PIN_PB2;
 const int BUZZER = PIN_PB3;
 const int LED_RED = PIN_PC0;
 const int LED_GREEN = PIN_PC1;
-//const int SERVO = PIN_PB2;
 
 bool firstEat = true;
 bool Eaten = false;
@@ -80,13 +80,13 @@ void eat()
   int i=1;
   digitalWrite(LED_GREEN,LOW);
   digitalWrite(BUZZER,HIGH);
-  for(;i<=cnt_tablet;i++){        
+  for(;i<=tablet_each_meals;i++){        
     servo.write(200); 
     delay(1000);      
     servo.write(0); 
     delay(1000);
-  }
-  cnt_meals++;   
+    cnt_tablet -= 1;
+  }  
 }
 void snooze(){
   if(press_for_snooze && mins-mins_snooze >= 5){
@@ -94,32 +94,40 @@ void snooze(){
     if (digitalRead(SWITCH_EAT) == LOW) {
        eat();
        mins_snooze = -1;   
-       press_for_snooze = false; 
+       press_for_snooze = false;
+       rounds++; 
+ //      cnt_tablet -= tablet_each_meals;
     }
    }
 }
 void loop()
 {
-  updateTime();
-  //morning
-  if(hr == morn_eat_hr && mins == morn_eat_mins && cnt_meals == 1) {
-    if (firstEat) {
-      firstEat = false;
-      digitalWrite(LED_GREEN,HIGH);
-      digitalWrite(BUZZER, LOW);
-    }   
-    //eat
-    if (digitalRead(SWITCH_EAT) == LOW) {
+  while(rounds < cnt_meals){
+    updateTime();
+    //digitalWrite(LED_RED,HIGH);
+    if(hr == hr_meals[rounds] && mins == mins_meals[rounds]) {
+      if(!press_for_snooze){
+        digitalWrite(LED_GREEN,HIGH);
+        digitalWrite(BUZZER, LOW);
+      }   
+      //eat
+      if (digitalRead(SWITCH_EAT) == LOW) {
        eat();
-    }
-    //snooze
-    if(digitalRead(SWITCH_SNOOZE) == LOW){
-      digitalWrite(BUZZER,HIGH);
-      mins_snooze = mins;
-      press_for_snooze = true;
+       rounds++;
+     //  cnt_tablet -= tablet_each_meals;
       }
-   }
-   snooze();
+      //snooze
+      if(digitalRead(SWITCH_SNOOZE) == LOW){
+        digitalWrite(BUZZER,HIGH);
+        mins_snooze = mins;
+        press_for_snooze = true;
+      }
+    }
+    snooze();
+    if(cnt_tablet <= 5){
+      digitalWrite(LED_RED,HIGH);
+    }
+  }
 }
 
 
