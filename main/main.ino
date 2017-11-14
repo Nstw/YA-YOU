@@ -1,8 +1,4 @@
 #include <Servo.h>
-
-//YWROBOT
-//Compatible with the Arduino IDE 1.0
-//Library version:1.1
 #include <Wire.h> 
 #include <LiquidCrystal_I2C.h>
 
@@ -16,28 +12,44 @@ int count_2 = 0;
 short eat_hr = 22;
 short eat_mins = 1;
 
+const int SWITCH_EAT = PIN_PB0;
+const int SWITCH_SNOOZE = PIN_PB1;
+//const int SERVO = PIN_PB2;
+const int BUZZER = PIN_PB3;
+const int LED_RED = PIN_PC0;
+const int LED_GREEN = PIN_PC1;
+
+
+
+Servo servo;
 void setup()
 {
   lcd.init();                      // initialize the lcd 
   // Print a message to the LCD.
-  lcd.backlight();
+/*  lcd.backlight();
   lcd.setCursor(0,0);
-  lcd.print("Time");
-  lcd.setCursor(0,1);
-  lcd.print("hr");
-  lcd.setCursor(0,2);
+//  lcd.print("Time");
+//  lcd.setCursor(0,1);
+//  lcd.print("hr");
+//  lcd.setCursor(0,2);
   lcd.print("min");
   lcd.setCursor(0,3);
-  lcd.print("sec");
+  lcd.print("sec");*/
   count_1 = millis();
-  pinMode(PIN_PD6,OUTPUT);
-  digitalWrite(PIN_PD6, HIGH);
+//  pinMode(PIN_PD6,OUTPUT);
+//  digitalWrite(PIN_PD6, HIGH);
+//  servo.attach(PIN_PC1);
+  pinMode(SWITCH_EAT,INPUT_PULLUP);
+  pinMode(SWITCH_SNOOZE,INPUT_PULLUP);
+  pinMode(BUZZER,OUTPUT);
+  pinMode(LED_RED,OUTPUT);
+  pinMode(LED_GREEN,OUTPUT);
+  digitalWrite(BUZZER,HIGH);
+  servo.attach(PIN_PB2);
 }
-
 
 void loop()
 {
-  digitalWrite(PIN_PD6, HIGH);
   count_2 = millis();
   if(mins >= 60){
     mins = 0;
@@ -57,8 +69,10 @@ void loop()
     lcd.print(sec);
     count_1 = count_2;
   }
-  
   if(hr == eat_hr && mins == eat_mins){
-    tone(PIN_PD6,1000);
+    digitalWrite(LED_GREEN,HIGH);
+    delay(500);
+    tone(BUZZER,1000);
+
   }
 }
