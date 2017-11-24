@@ -3,19 +3,19 @@
 #include <Wire.h> 
 #include <LiquidCrystal_I2C.h>
 
-LiquidCrystal_I2C lcd(0x3F,16,4);  // set the LCD address to 0x27 for a 16 chars and 2 line display
-short hr = 22;
-short mins = 50;
+LiquidCrystal_I2C lcd(0x3F,16,4);
+short hr = 10;
+short mins = 48;
 short sec = 0;
 int count_1 = 0;
 int count_2 = 0;
 
-short cnt_meals = 2;
-short hr_meals [] = {22,22};
-short mins_meals []= {40,57};
+short hr_meals [] = {10,10,11,11,11,11,11,11,11};
+short mins_meals []= {50,55,10,15,20,25,30,35,40};
+short cnt_meals = sizeof(hr_meals)/sizeof(short);
 short mins_snooze = -1;
-short tablet_each_meals = 1;
-short tablet_remain = 20;
+short tablet_each_meals = 2;
+short tablet_remain = 10;
 short rounds = 0;
 
 const int SWITCH_EAT = PIN_PD6;
@@ -74,11 +74,11 @@ void updateTime() {
   if(hr == 24){
     hr = 0;
   }
-  if((count_2 - count_1) >= 50){
+  if((count_2 - count_1) >= 10){
     sec +=  1;
     count_1 = count_2;
   }
-  //hours
+  //HOURS
   lcd.setCursor(0,3);
   if(hr < 10){
     lcd.print("0");
@@ -86,7 +86,7 @@ void updateTime() {
   lcd.print(hr);
   lcd.setCursor(2,3);
   lcd.print(":");
-  //minutes
+  //MINUTES
   lcd.setCursor(3,3);
   if(mins < 10){
     lcd.print("0");
@@ -95,10 +95,9 @@ void updateTime() {
 }
 void eat()
 {
-  int i=1;
   digitalWrite(LED_GREEN,LOW);
   digitalWrite(BUZZER,HIGH);
-  for(;i<=tablet_each_meals;i++){        
+  for(int i=1;i<=tablet_each_meals;i++){        
     servo.write(200); 
     delay(1000);      
     servo.write(0); 
@@ -157,7 +156,14 @@ void loop()
     //SHOW REMAINING
     lcd.setCursor(-4,2);
     lcd.print("Remaining : ");
-    lcd.setCursor(8,2);
+    if(tablet_remain < 10){
+      lcd.setCursor(8,2);
+      lcd.print("0");
+      lcd.setCursor(9,2);
+    }
+    else{
+      lcd.setCursor(8,2);
+    }
     lcd.print(tablet_remain);
   }
 }
